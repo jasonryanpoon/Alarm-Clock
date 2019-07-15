@@ -1,5 +1,6 @@
 //This program uses the RTC to display time on a 4 digit 7 segment display
 //When the alarm triggers, it plays mp3 files through a USB connected on the micro USB port
+//Summer 2016
 
 #include "stm32f4xx_rtc.h"
 #include "stm32f4xx_rcc.h"
