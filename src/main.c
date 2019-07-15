@@ -14,7 +14,7 @@
 #include "timeKeeping.h"
 #include "main.h"
 
-//structures
+//Structures
 RCC_ClocksTypeDef RCC_Clocks;
 GPIO_InitTypeDef	GPIOInitStruct;
 TIM_TimeBaseInitTypeDef TIM_InitStruct;
@@ -23,7 +23,7 @@ EXTI_InitTypeDef EXTI_InitStructure;
 I2C_InitTypeDef I2C_InitStruct;
 
 
-//function prototypes
+//Function prototypes
 void configuration(void);
 void Output_Segment(int number);
 void display7Seg(uint8_t h, uint8_t m);
@@ -35,7 +35,7 @@ void set24Hour(void);
 void buttonControls(void);
 
 
-//global variables
+//Global variables
 int interruptOccurred = 0;
 int hour24Flag = 0;
 unsigned int debouncing = 0;
@@ -63,13 +63,13 @@ int main(void)
   // It is set to one here for testing purposes only.
   interruptOccurred = 0;
   hour24Flag = 0;
-  //continuously loops checking for the alarm interrupt
+  //Continuously loops checking for the alarm interrupt
   while(1)
   {
 	//	 mp3PlayingFlag = 1;
 	//	 audioToMp3();
 
-	  //checks for alarm A interrupt and calls the mp3 function
+	  //Checks for alarm A interrupt and calls the mp3 function
 	  if(1 == interruptOccurred && mp3PlayingFlag == 0)
 	  {
 
@@ -78,7 +78,7 @@ int main(void)
 		 audioToMp3();
 	  }
 
-	  //ensures the alarm is not already playing
+	  //Ensures the alarm is not already playing
 	  else if(1 == interruptOccurred && mp3PlayingFlag == 1)
 	  {
 		 interruptOccurred = 0;
@@ -88,14 +88,14 @@ int main(void)
 
 }
 
-//timer interrupt handler that is called at a rate of 500Hz
-//this function gets the time and displays it on the 7 segment display
-//it also checks for button presses, debounces, and handles each case
+//Timer interrupt handler that is called at a rate of 500Hz
+//This function gets the time and displays it on the 7 segment display
+//It also checks for button presses, debounces, and handles each case
 void TIM5_IRQHandler(void)
 {
 	int previousState = 0;
 
-	//double checks that interrupt has occurred
+	//Double checks that interrupt has occurred
 	if( TIM_GetITStatus( TIM5, TIM_IT_Update ) != RESET )
 	{
 		getCurrentTime();
@@ -108,7 +108,7 @@ void TIM5_IRQHandler(void)
 			snoozedelay = 0; //Reset
 		}
 
-		if(1 == hour24Flag) set24Hour();//displays as either 24 or 12 hour
+		if(1 == hour24Flag) set24Hour();//Displays as either 24 or 12 hour
 
 		newhour = myclockTimeStruct.RTC_Hours; //Holds the current hour
 		if((prevhour != newhour) && (currentmode != 2)) timeHourCheck(); //Checks the hour if it changes
@@ -159,7 +159,7 @@ void TIM5_IRQHandler(void)
 				}
 				else {
 
-					//UP minute
+					//Increment minute
 					if((buttonFlag == 1) && (buttonState == UP) && (setmin == 1))
 					{
 						if((myclockTimeStruct.RTC_Minutes & 0x0F) == 0x0F) //Accounts for Hex conversion
@@ -171,7 +171,7 @@ void TIM5_IRQHandler(void)
 						buttonFlag = 0;
 					}
 
-					//DOWN minute
+					//Decrement minute
 					if((buttonFlag == 1) && (buttonState == DOWN) && (setmin == 1))
 					{
 						if(((myclockTimeStruct.RTC_Minutes & 0x0F) == 0x06) && myclockTimeStruct.RTC_Minutes > 0x10) //Accounts for Hex conversion
@@ -183,7 +183,7 @@ void TIM5_IRQHandler(void)
 						buttonFlag = 0;
 					}
 
-					//UP hour
+					//Increment hour
 					if((buttonFlag == 1) && (buttonState == UP))
 					{
 						if((myclockTimeStruct.RTC_Hours & 0x0F) == 0x0F)
@@ -205,7 +205,7 @@ void TIM5_IRQHandler(void)
 						buttonFlag = 0;
 					}
 
-					//DOWN hour
+					//Decrement hour
 					if((buttonFlag == 1) && (buttonState == DOWN))
 					{
 						if(((myclockTimeStruct.RTC_Hours & 0x0F) == 0x06) && myclockTimeStruct.RTC_Hours > 0x10)
@@ -225,8 +225,8 @@ void TIM5_IRQHandler(void)
 						else //Otherwise, add a minute
 							setTime(myclockTimeStruct.RTC_Hours - 0x01, myclockTimeStruct.RTC_Minutes, myclockTimeStruct.RTC_H12);
 						buttonFlag = 0;
-					}//Down hour
-				}//Up down min and hour
+					}//Decrement hour
+				}//Increment/Decrement min and hour
 			}//Set Time
 
 			//SET Alarm
@@ -244,12 +244,12 @@ void TIM5_IRQHandler(void)
 					}
 				else {
 
-					if(0 != (0x100 & RTC->CR)) //checks if alarm was on or off
+					if(0 != (0x100 & RTC->CR)) //Checks if alarm was on or off
 					{
 						previousState = 1;
 					}
 
-					//UP min alarm
+					//Increment min alarm
 					if((buttonFlag == 1) && (buttonState == UP) && (setmin == 1))
 					{
 						if((AlarmStruct.RTC_AlarmTime.RTC_Minutes & 0x0F) == 0x0F) //Accounts for Hex conversion
@@ -263,7 +263,7 @@ void TIM5_IRQHandler(void)
 
 					}
 
-					//DOWN min alarm
+					//Decrement min alarm
 					if((buttonFlag == 1) && (buttonState == DOWN) && (setmin == 1))
 					{
 						if(((AlarmStruct.RTC_AlarmTime.RTC_Minutes & 0x0F) == 0x06) && AlarmStruct.RTC_AlarmTime.RTC_Minutes > 0x10)
@@ -275,7 +275,7 @@ void TIM5_IRQHandler(void)
 						buttonFlag = 0;
 					}
 
-					//UP hour alarm
+					//Increment hour alarm
 					if((buttonFlag == 1) && (buttonState == UP))
 					{
 						if((AlarmStruct.RTC_AlarmTime.RTC_Hours & 0x0F) == 0x0F)
@@ -299,7 +299,7 @@ void TIM5_IRQHandler(void)
 
 					}
 
-					//DOWN hour alarm
+					//Decrement hour alarm
 					if((buttonFlag == 1) && (buttonState == DOWN))
 					{
 						if(((AlarmStruct.RTC_AlarmTime.RTC_Hours & 0x0F) == 0x06) && AlarmStruct.RTC_AlarmTime.RTC_Hours > 0x10)//Accounts for Hex conversion
@@ -329,11 +329,11 @@ void TIM5_IRQHandler(void)
 						RTC_ClearFlag(RTC_FLAG_ALRAF);
 						previousState = 0;
 					}
-				}//Up Down Min Hour
+				}//Increment/Decrement Min Hour alarm
 			}//Set Alarm
 		}//Mode on
 
-		//if snooze button is pressed cancels the mp3 and sets alarm 10 minutes later
+		//If snooze button is pressed cancels the mp3 and sets alarm 10 minutes later
 		if((buttonFlag == 1) && (buttonState == SNOOZE))
 		{
 			if(mp3PlayingFlag == 1)
@@ -344,21 +344,21 @@ void TIM5_IRQHandler(void)
 			buttonFlag = 0;
 		}
 
-		//if the reset button is pressed without mp3 playing, it turns off and on the alarm
-		//otherwise it cancels the mp3
+		//If the reset button is pressed without mp3 playing, it turns off and on the alarm
+		//Otherwise it cancels the mp3
 		if((buttonFlag == 1) && (buttonState == SELECT))
 		{
-			if(mp3PlayingFlag == 0)  //if not playing
+			if(mp3PlayingFlag == 0)  //If not playing
 			{
 
-				//toggle alarm
-				if(0 != (0x100 & RTC->CR))  //if alarm is on
+				//Toggle alarm
+				if(0 != (0x100 & RTC->CR))  //If alarm is on
 				{
 					RTC_AlarmCmd(RTC_Alarm_A,DISABLE);
 
 				}
 
-				//if alarm is off
+				//If alarm is off
 				else
 				{
 					RTC_AlarmCmd(RTC_Alarm_A,ENABLE);
@@ -369,7 +369,7 @@ void TIM5_IRQHandler(void)
 				 exitMp3 = 1;
 			 }
 
-			 //checks if snooze has been used before, resets the alarm to original time
+			 //Checks if snooze has been used before, resets the alarm to original time
 			 if(1 == snoozeMemory)
 			 {
 				 AlarmStruct.RTC_AlarmTime = alarmMemory.RTC_AlarmTime;
@@ -378,14 +378,14 @@ void TIM5_IRQHandler(void)
 			 }
 			 buttonFlag = 0;
 		 }
-	     //clears interrupt flag
+	     //Clears interrupt flag
 	     TIM5->SR = (uint16_t)~TIM_IT_Update;
     }
 }
 
-//alarm A interrupt handler
-//when alarm occurs, clear all the interrupt bits and flags
-//then set the flag to play mp3
+//Alarm A interrupt handler
+//When alarm occurs, clear all the interrupt bits and flags
+//Then set the flag to play mp3
 void RTC_Alarm_IRQHandler(void)
 {
 
@@ -443,10 +443,10 @@ void Output_Segment(int number){
 			GPIOE->BSRRL = 0b10100110000011; //Set pins 0, 1, 7, 8, 11, 13
 			GPIOE->BSRRH = 0b01000000000000; //Reset all other segments
 				break;
-		}//switch
+		}//Switch
 }//Output_Segment
 
-//displays the current clock or alarm time
+//Displays the current clock or alarm time
 void display7Seg(uint8_t h, uint8_t m)
 {
 	static int pos = 0;	//Contains digit position information
@@ -501,42 +501,42 @@ void display7Seg(uint8_t h, uint8_t m)
 	switch(pos)
 		{
 			case 0: // First Digit
-				GPIOD->BSRRH = 0b110000110; // set pins 1,2,8,7 = 0
+				GPIOD->BSRRH = 0b110000110; // Set pins 1,2,8,7 = 0
 				Output_Segment(dgt[pos]); //Output digit value
-				GPIOD->BSRRL = 0b1000;		// use set reset register low to set pin 3 = 1
+				GPIOD->BSRRL = 0b1000;		// Use set reset register low to set pin 3 = 1
 				pos++; //Increment to the next digit
 					break;
 			case 1: // Second Digit
-				GPIOD->BSRRH = 0b110001010; // set pins 1,3,8,7 = 0
+				GPIOD->BSRRH = 0b110001010; // Set pins 1,3,8,7 = 0
 				Output_Segment(dgt[pos]);
-				GPIOD->BSRRL = 0b100;		// use set reset register low to set pins 2 = 1
+				GPIOD->BSRRL = 0b100;		// Use set reset register low to set pins 2 = 1
 				pos++;
 					break;
 			case 2: // Third Digit
-				GPIOD->BSRRH = 0b010001110; // set pins 1,2,3,7 = 0
+				GPIOD->BSRRH = 0b010001110; // Set pins 1,2,3,7 = 0
 				Output_Segment(dgt[pos]);
-				GPIOD->BSRRL = 0b100000000;		// use set reset register low to set pins 8 = 1
+				GPIOD->BSRRL = 0b100000000;		// Use set reset register low to set pins 8 = 1
 				pos++;
 					break;
 			case 3: // Fourth Digit
-				GPIOD->BSRRH = 0b100001110; // set pins 1,2,3,8 = 0
+				GPIOD->BSRRH = 0b100001110; // Set pins 1,2,3,8 = 0
 				Output_Segment(dgt[pos]);
-				GPIOD->BSRRL = 0b010000000;		// use set reset register low to set pins 7 = 1
+				GPIOD->BSRRL = 0b010000000;		// Use set reset register low to set pins 7 = 1
 				pos++; //Reset to the first digit
 					break;
 			case 4: // Colon
 				pos = 0;	//Reset to first digit
-				GPIOD->BSRRH = 0b110001100; // set other digits off
-				GPIOE->BSRRL = 0b10000010000000; // set colon segments on
-				GPIOE->BSRRH = 0b01100100000011; // set other segments off
-				GPIOD->BSRRL = 0b000000010; // set colon digit on
+				GPIOD->BSRRH = 0b110001100; // Set other digits off
+				GPIOE->BSRRL = 0b10000010000000; // Set colon segments on
+				GPIOE->BSRRH = 0b01100100000011; // Set other segments off
+				GPIOD->BSRRL = 0b000000010; // Set colon digit on
 				break;
 
-		}//switch
+		}//Switch
 }//display7Seg
 
 
-//used to set time values
+//Used to set time values
 void setTime(uint8_t h, uint8_t m, uint8_t AMPM)
 {
 	myclockTimeStruct.RTC_H12 = AMPM; //AM or PM
@@ -546,7 +546,7 @@ void setTime(uint8_t h, uint8_t m, uint8_t AMPM)
 	RTC_SetTime(RTC_Format_BCD, &myclockTimeStruct); //Set the time with new settings
 }
 
-//used to set alarm values
+//Used to set alarm values
 void setAlarm(uint8_t h, uint8_t m, uint8_t AMPM)
 {
 	AlarmStruct.RTC_AlarmTime.RTC_Hours = h; //Alarm Hour
@@ -555,12 +555,12 @@ void setAlarm(uint8_t h, uint8_t m, uint8_t AMPM)
 	AlarmStruct.RTC_AlarmTime.RTC_Seconds = 0x00; //Seconds set to 0s
 
 	RTC_AlarmCmd(RTC_Alarm_A,DISABLE);
-	RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &AlarmStruct); //where AlarmStruct hold your new alarm time.
-	RTC_AlarmCmd(RTC_Alarm_A,ENABLE); //if you wish to reactivate the alarm.
+	RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &AlarmStruct); //Where AlarmStruct hold your new alarm time.
+	RTC_AlarmCmd(RTC_Alarm_A,ENABLE); //If you wish to reactivate the alarm.
 	RTC_ClearFlag(RTC_FLAG_ALRAF);
 }
 
-//adds 10 minutes to the current alarm time and checks to make sure that time is
+//Adds 10 minutes to the current alarm time and checks to make sure that time is
 //acceptable for a 12 hour or 24 hour clock.  It also stores the time when the button is
 //first pressed so when the alarm is cancelled the alarm time goes back to
 //the original
@@ -592,7 +592,7 @@ void snooze(void)
 }
 
 
-//called by the timer interrupt to separate the BCD time values
+//Called by the timer interrupt to separate the BCD time values
 void getCurrentTime(void)
 {
 	// Obtain current time.
@@ -601,14 +601,14 @@ void getCurrentTime(void)
 
 
 
-//converts the 12 hour time to 24 hour when displaying the time
+//Converts the 12 hour time to 24 hour when displaying the time
 //or alarm values
 void set24Hour(void)
 {
 	//uint8_t hour = myclockTimeStruct.RTC_Hours;	//Show hours in variables tab
 	//uint8_t H12 = myclockTimeStruct.RTC_H12;		//Show AM/PM in variables tab
 	if(myclockInitTypeStruct.RTC_HourFormat == RTC_HourFormat_12)
-		{			//check if the clock is in the 12 hour mode else 24
+		{			//Check if the clock is in the 12 hour mode else 24
 			//TIME
 			if(myclockTimeStruct.RTC_H12 == RTC_H12_AM){//If the current time is in AM
 				myclockInitTypeStruct.RTC_HourFormat = RTC_HourFormat_24;//Change structure to 24 hour mode
@@ -626,7 +626,7 @@ void set24Hour(void)
 				AlarmStruct.RTC_AlarmTime.RTC_Hours = AlarmStruct.RTC_AlarmTime.RTC_Hours + 0x12;//Subract 12 hours from timestruct
 				AlarmStruct.RTC_AlarmTime.RTC_H12 = RTC_H12_PM;									//Set struct to PM
 				RTC_AlarmCmd(RTC_Alarm_A,DISABLE);
-				RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &AlarmStruct); //where AlarmStruct hold your new alarm time.
+				RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &AlarmStruct); //Where AlarmStruct hold your new alarm time.
 				RTC_AlarmCmd(RTC_Alarm_A,ENABLE); 						 //Reactivates the alarm.
 				RTC_ClearFlag(RTC_FLAG_ALRAF);
 			}
@@ -634,24 +634,24 @@ void set24Hour(void)
 	if(myclockInitTypeStruct.RTC_HourFormat == RTC_HourFormat_24)
 		{
 			//TIME
-			if(myclockTimeStruct.RTC_Hours > 0x12){							//if greater than 12hours must be in 24hour mode
-				myclockTimeStruct.RTC_Hours = myclockTimeStruct.RTC_Hours - 0x12;	//subtract 12 hours from struct to convert to 12hour format
+			if(myclockTimeStruct.RTC_Hours > 0x12){							//If greater than 12hours must be in 24hour mode
+				myclockTimeStruct.RTC_Hours = myclockTimeStruct.RTC_Hours - 0x12;	//Subtract 12 hours from struct to convert to 12hour format
 				myclockInitTypeStruct.RTC_HourFormat = RTC_HourFormat_12;	//Change initstruct to 12 hour
 				myclockTimeStruct.RTC_H12 = RTC_H12_PM;					//Set struct to PM
-				RTC_Init(&myclockInitTypeStruct);							//write init
-				RTC_SetTime(RTC_Format_BCD, &myclockTimeStruct);		//write to RTC
+				RTC_Init(&myclockInitTypeStruct);							//Write init
+				RTC_SetTime(RTC_Format_BCD, &myclockTimeStruct);		//Write to RTC
 			}else{
-				myclockInitTypeStruct.RTC_HourFormat = RTC_HourFormat_12;	//must be 24 <12 so change to 12
+				myclockInitTypeStruct.RTC_HourFormat = RTC_HourFormat_12;	//Must be 24 <12 so change to 12
 				myclockTimeStruct.RTC_H12 = RTC_H12_AM;						//Make sure AM is set
-				RTC_Init(&myclockInitTypeStruct);							//write init
-				RTC_SetTime(RTC_Format_BCD, &myclockTimeStruct);			//write timestruct to RTC
+				RTC_Init(&myclockInitTypeStruct);							//Write init
+				RTC_SetTime(RTC_Format_BCD, &myclockTimeStruct);			//Write timestruct to RTC
 			}
 			//ALARM
 			if(AlarmStruct.RTC_AlarmTime.RTC_Hours > 0x12){
 				AlarmStruct.RTC_AlarmTime.RTC_Hours = AlarmStruct.RTC_AlarmTime.RTC_Hours - 0x12;	//Else If the time is PM subract 12 hours from timestruct
 				AlarmStruct.RTC_AlarmTime.RTC_H12 = RTC_H12_PM;					//Set struct to PM
 				RTC_AlarmCmd(RTC_Alarm_A,DISABLE);
-				RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &AlarmStruct); //where AlarmStruct hold your new alarm time.
+				RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &AlarmStruct); //Where AlarmStruct hold your new alarm time.
 				RTC_AlarmCmd(RTC_Alarm_A,ENABLE); //Reactivates the alarm.
 				RTC_ClearFlag(RTC_FLAG_ALRAF);
 			}
@@ -661,8 +661,8 @@ void set24Hour(void)
 }
 
 
-//called every timer interrupt.  checks for changes on the
-//input data register and then debounces and sets which button is pressed
+//Called every timer interrupt.  checks for changes on the
+//Input data register and then debounces and sets which button is pressed
 void buttonControls(void)
 {
 	static int new = 0; //New IDR state
@@ -758,13 +758,13 @@ void buttonControls(void)
 }
 
 
-//configures the clocks, gpio, alarm, interrupts etc.
+//Configures the clocks, gpio, alarm, interrupts etc.
 void configuration(void)
 {
-	//lets the system clocks be viewed
+	//Lets the system clocks be viewed
 	RCC_GetClocksFreq(&RCC_Clocks);
 
-	//enable peripheral clocks
+	//Enable peripheral clocks
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);	// Needed for Audio chip
@@ -787,10 +787,10 @@ void configuration(void)
 	//Enable the LSI OSC
 	RCC_LSICmd(ENABLE);
 
-	//Wait till LSI is ready
+	//Wait until LSI is ready
 	while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
 
-	//enable the external interrupt for the RTC to use the Alarm
+	//Enable the external interrupt for the RTC to use the Alarm
 	// EXTI configuration
 	EXTI_ClearITPendingBit(EXTI_Line17);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line17;
@@ -813,13 +813,13 @@ void configuration(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init( &NVIC_InitStructure );
 
-	//setup the RTC for 12 hour format
+	//Setup the RTC for 12 hour format
 	myclockInitTypeStruct.RTC_HourFormat = RTC_HourFormat_12;
 	myclockInitTypeStruct.RTC_AsynchPrediv = 127;
 	myclockInitTypeStruct.RTC_SynchPrediv = 0x00FF;
 	RTC_Init(&myclockInitTypeStruct);
 
-	//set the time displayed on power up to 7:00AM
+	//Set the time displayed on power up to 7:00AM
 	myclockTimeStruct.RTC_H12 = RTC_H12_AM;
 	myclockTimeStruct.RTC_Hours = 0x07;
 	myclockTimeStruct.RTC_Minutes = 0x59;
@@ -827,7 +827,7 @@ void configuration(void)
 	RTC_SetTime(RTC_Format_BCD, &myclockTimeStruct);
 
 
-	//sets alarmA for 8:00AM, date doesn't matter
+	//Sets alarmA for 8:00AM, date doesn't matter
 	AlarmStruct.RTC_AlarmTime.RTC_H12 = RTC_H12_AM;
 	AlarmStruct.RTC_AlarmTime.RTC_Hours = 0x08;
 	AlarmStruct.RTC_AlarmTime.RTC_Minutes = 0x00;
@@ -846,11 +846,11 @@ void configuration(void)
 	// Pins B6 and B9 are used for I2C communication, configure as alternate function.
 	// We use them to communicate with the CS43L22 chip via I2C
 	GPIO_StructInit( &GPIOInitStruct );
-	GPIOInitStruct.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9; // we are going to use PB6 and PB9
-	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;			// set pins to alternate function
-	GPIOInitStruct.GPIO_Speed = GPIO_Speed_50MHz;		// set GPIO speed
-	GPIOInitStruct.GPIO_OType = GPIO_OType_OD;			// set output to open drain --> the line has to be only pulled low, not driven high
-	GPIOInitStruct.GPIO_PuPd = GPIO_PuPd_UP;			// enable pull up resistors
+	GPIOInitStruct.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_9; // Using PB6 and PB9
+	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;			// Set pins to alternate function
+	GPIOInitStruct.GPIO_Speed = GPIO_Speed_50MHz;		// Set GPIO speed
+	GPIOInitStruct.GPIO_OType = GPIO_OType_OD;			// Set output to open drain --> the line has to be only pulled low, not driven high
+	GPIOInitStruct.GPIO_PuPd = GPIO_PuPd_UP;			// Enable pull up resistors
 	GPIO_Init(GPIOB, &GPIOInitStruct);
 
 	// The I2C1_SCL and I2C1_SDA pins are now connected to their AF
@@ -871,7 +871,7 @@ void configuration(void)
 	// Initialize the I2C peripheral w/ selected parameters
 	I2C_Init(I2C1,&I2C_InitStruct);
 
-	// enable I2C1
+	// Enable I2C1
 	I2C_Cmd(I2C1, ENABLE);
 
 	//IO for push buttons using internal pull-up resistors
@@ -883,7 +883,7 @@ void configuration(void)
 	GPIOInitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOC, &GPIOInitStruct);
 
-	//configure GPIO for segments
+	//Configure GPIO for segments
 	GPIO_StructInit( &GPIOInitStruct );
 	GPIOInitStruct.GPIO_Pin = GPIO_Pin_13| GPIO_Pin_7| GPIO_Pin_8| GPIO_Pin_0| GPIO_Pin_1| GPIO_Pin_11| GPIO_Pin_12;
 	GPIOInitStruct.GPIO_Speed = GPIO_Speed_2MHz;
@@ -892,7 +892,7 @@ void configuration(void)
 	GPIOInitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOE, &GPIOInitStruct);
 
-	//configure GPIO for multiplexing
+	//Configure GPIO for multiplexing
 	// Note: Pin D4 is used to reset the CS43L22 chip
 	//       Pins D7, D8, D9, D10, D11 are recommended for multiplexing the LED display.
 	GPIO_StructInit( &GPIOInitStruct );
@@ -903,13 +903,13 @@ void configuration(void)
 	GPIOInitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOD, &GPIOInitStruct);
 
-	//enables RTC alarm A interrupt
+	//Enables RTC alarm A interrupt
 	RTC_ITConfig(RTC_IT_ALRA, ENABLE);
 
-	//enables timer interrupt
+	//Enables timer interrupt
 	TIM5->DIER |= TIM_IT_Update;
 
-	//enables timer
+	//Enables timer
 	TIM5->CR1 |= TIM_CR1_CEN;
 
 }
